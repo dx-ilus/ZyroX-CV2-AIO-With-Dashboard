@@ -38,11 +38,23 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${inter.variable} ${outfit.variable}`}>
-      <body className="font-sans antialiased text-slate-200">
-        <AuthProvider>
-          {children}
-          <Toaster />
-        </AuthProvider>
+      <body className="relative min-h-screen bg-black font-sans antialiased text-slate-200 overflow-x-hidden">
+        {/* Background Image Layer from Pinterest */}
+        <div 
+          className="fixed inset-0 z-0 bg-cover bg-center pointer-events-none opacity-35"
+          style={{ backgroundImage: `url('https://i.pinimg.com/736x/67/b6/4f/67b64f862a20c81ef552cfa8aa4a76bb.jpg')` }}
+        />
+        
+        {/* Deep Black to Rich Gold/Amber Gradient Overlay */}
+        <div className="fixed inset-0 z-0 bg-gradient-to-br from-black via-zinc-950 to-amber-950/30 pointer-events-none" />
+
+        {/* Main Application Container */}
+        <div className="relative z-10 flex flex-col min-h-screen">
+          <AuthProvider>
+            <div className="flex-grow">{children}</div>
+            <Toaster />
+          </AuthProvider>
+        </div>
       </body>
     </html>
   );
