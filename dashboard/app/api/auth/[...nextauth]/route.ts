@@ -1,73 +1,22 @@
 /**
  * ╔══════════════════════════════════════════════════════════════════╗
  * ║                                                                  ║
- * ║    ░█▀▀░█▀█░█▀▄░█▀▀░█░█    ░█▀▄░█▀▀░█░█░█▀▀                       ║
- * ║    ░█░░░█░█░█░█░█▀▀░▄▀▄    ░█░█░█▀▀░▀▄▀░▀▀█                       ║
- * ║    ░▀▀▀░▀▀▀░▀▀░░▀▀▀░▀░▀    ░▀▀░░▀▀▀░░▀░░▀▀▀                       ║
+ * ║   ░█▀▀░█▀█░█▀▄░█▀▀░█░█   ░█▀▄░█▀▀░█░█░█▀▀                     ║
+ * ║   ░█░░░█░█░█░█░█▀▀░▄▀▄   ░█░█░█▀▀░▀▄▀░▀▀█                     ║
+ * ║   ░▀▀▀░▀▀▀░▀▀░░▀▀▀░▀░▀   ░▀▀░░▀▀▀░░▀░░▀▀▀                     ║
  * ║                                                                  ║
- * ║            © 2026 CodeX Devs — All Rights Reserved               ║
+ * ║           © 2026 CodeX Devs — All Rights Reserved               ║
  * ║                                                                  ║
- * ║    discord  ──  https://discord.gg/codexdev                      ║
- * ║    youtube  ──  https://youtube.com/@CodeXDevs                   ║
- * ║    github   ──  https://github.com/RayExo                        ║
+ * ║   discord  ──  https://discord.gg/codexdev                      ║
+ * ║   youtube  ──  https://youtube.com/@CodeXDevs                   ║
+ * ║   github   ──  https://github.com/RayExo                        ║
  * ║                                                                  ║
  * ╚══════════════════════════════════════════════════════════════════╝
  */
 
-import { NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
+import NextAuth from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-export async function GET() {
-  try {
-    const session: any = await getServerSession(authOptions);
+const handler = NextAuth(authOptions);
 
-    if (!session || !session.accessToken) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    // 1. Fetch user's guilds from Discord
-    const userGuildsRes = await fetch("https://discord.com/api/users/@me/guilds", {
-      headers: {
-        Authorization: `Bearer ${session.accessToken}`,
-      },
-    });
-
-    if (!userGuildsRes.ok) {
-      throw new Error("Failed to fetch user guilds");
-    }
-
-    const userGuilds = await userGuildsRes.json();
-
-    // 2. Fetch the bot's guilds using the Bot Token
-    const botGuildsRes = await fetch("https://discord.com/api/users/@me/guilds", {
-      headers: {
-        Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
-      },
-    });
-
-    if (!botGuildsRes.ok) {
-      throw new Error("Failed to fetch bot guilds");
-    }
-
-    const botGuilds = await botGuildsRes.json();
-    const botGuildIds = new Set(botGuilds.map((g: any) => g.id));
-
-    // 3. Map servers using standard numeric bitwise check for Administrator (0x8)
-    const processedGuilds = userGuilds
-      .filter((guild: any) => {
-        const permissions = Number(guild.permissions);
-        const isAdmin = (permissions & 0x8) === 0x8;
-        return guild.owner || isAdmin;
-      })
-      .map((guild: any) => ({
-        ...guild,
-        botPresent: botGuildIds.has(guild.id),
-      }));
-
-    return NextResponse.json(processedGuilds);
-  } catch (error) {
-    console.error("Error fetching guilds:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
-  }
-}
+export { handler as GET, handler as POST };
