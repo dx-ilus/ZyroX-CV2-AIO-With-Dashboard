@@ -37,8 +37,17 @@ export async function GET() {
     }
 
     const guilds = await response.json();
-    return NextResponse.json(guilds);
+
+    // Filter to servers where the user has Administrator permission (0x8) or is the Owner
+    const manageableGuilds = guilds.filter((guild: any) => {
+      const permissions = BigInt(guild.permissions);
+      const isAdmin = (permissions & 0x8n) === 0x8n;
+      return guild.owner || isAdmin;
+    });
+
+    return NextResponse.json(manageableGuilds);
   } catch (error) {
+    console.error("Error fetching guilds:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
   }
 }
