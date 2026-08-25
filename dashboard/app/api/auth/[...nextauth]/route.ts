@@ -53,11 +53,11 @@ export async function GET() {
     const botGuilds = await botGuildsRes.json();
     const botGuildIds = new Set(botGuilds.map((g: any) => g.id));
 
-    // 3. Map servers: user must be Admin/Owner, and we can tag if the bot is in it or not
+    // 3. Map servers using standard numeric bitwise check for Administrator (0x8)
     const processedGuilds = userGuilds
       .filter((guild: any) => {
-        const permissions = BigInt(guild.permissions);
-        const isAdmin = (permissions & 0x8n) === 0x8n;
+        const permissions = Number(guild.permissions);
+        const isAdmin = (permissions & 0x8) === 0x8;
         return guild.owner || isAdmin;
       })
       .map((guild: any) => ({
