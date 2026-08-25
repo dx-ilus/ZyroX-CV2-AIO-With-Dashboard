@@ -12,7 +12,7 @@
 
 import type { Metadata } from "next";
 import { Inter, Outfit } from "next/font/google";
-import Providers from "@/components/providers";
+import { Providers } from "@/components/auth-provider";
 import "./globals.css";
 
 const inter = Inter({ 
