@@ -1,15 +1,15 @@
 /**
  * ╔══════════════════════════════════════════════════════════════════╗
  * ║                                                                  ║
- * ║   ░█▀▀░█▀█░█▀▄░█▀▀░█░█   ░█▀▄░█▀▀░█░█░█▀▀                     ║
- * ║   ░█░░░█░█░█░█░█▀▀░▄▀▄   ░█░█░█▀▀░▀▄▀░▀▀█                     ║
- * ║   ░▀▀▀░▀▀▀░▀▀░░▀▀▀░▀░▀   ░▀▀░░▀▀▀░░▀░░▀▀▀                     ║
+ * ║    ░█▀▀░█▀█░█▀▄░█▀▀░█░█    ░█▀▄░█▀▀░█░█░█▀▀                       ║
+ * ║    ░█░░░█░█░█░█░█▀▀░▄▀▄    ░█░█░█▀▀░▀▄▀░▀▀█                       ║
+ * ║    ░▀▀▀░▀▀▀░▀▀░░▀▀▀░▀░▀    ░▀▀░░▀▀▀░░▀░░▀▀▀                       ║
  * ║                                                                  ║
- * ║           © 2026 CodeX Devs — All Rights Reserved               ║
+ * ║            © 2026 CodeX Devs — All Rights Reserved               ║
  * ║                                                                  ║
- * ║   discord  ──  https://discord.gg/codexdev                      ║
- * ║   youtube  ──  https://youtube.com/@CodeXDevs                   ║
- * ║   github   ──  https://github.com/RayExo                        ║
+ * ║    discord  ──  https://discord.gg/codexdev                      ║
+ * ║    youtube  ──  https://youtube.com/@CodeXDevs                   ║
+ * ║    github   ──  https://github.com/RayExo                        ║
  * ║                                                                  ║
  * ╚══════════════════════════════════════════════════════════════════╝
  */
@@ -18,6 +18,6 @@
 
 import { SessionProvider } from "next-auth/react";
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function Providers({ children }: { children: React.ReactNode }) {
   return <SessionProvider>{children}</SessionProvider>;
 }
