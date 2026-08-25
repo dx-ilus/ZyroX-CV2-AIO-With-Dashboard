@@ -14,30 +14,31 @@
  * ╚══════════════════════════════════════════════════════════════════╝
  */
 
-import { NextAuthOptions } from "next-auth";
-import DiscordProvider from "next-auth/providers/discord";
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
-export const authOptions: NextAuthOptions = {
-  providers: [
-    DiscordProvider({
-      clientId: process.env.DISCORD_CLIENT_ID || "",
-      clientSecret: process.env.DISCORD_CLIENT_SECRET || "",
-      authorization: {
-        params: { scope: "identify guilds" },
+export async function GET() {
+  try {
+    const session: any = await getServerSession(authOptions);
+
+    if (!session || !session.accessToken) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const response = await fetch("https://discord.com/api/users/@me/guilds", {
+      headers: {
+        Authorization: `Bearer ${session.accessToken}`,
       },
-    }),
-  ],
-  callbacks: {
-    async jwt({ token, account }) {
-      if (account) {
-        token.accessToken = account.access_token;
-      }
-      return token;
-    },
-    async session({ session, token }: { session: any; token: any }) {
-      session.accessToken = token.accessToken;
-      return session;
-    },
-  },
-  secret: process.env.NEXTAUTH_SECRET,
-};
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch guilds from Discord API");
+    }
+
+    const guilds = await response.json();
+    return NextResponse.json(guilds);
+  } catch (error) {
+    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
+  }
+}
