@@ -26,26 +26,46 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const response = await fetch("https://discord.com/api/users/@me/guilds", {
+    // 1. Fetch user's guilds from Discord
+    const userGuildsRes = await fetch("https://discord.com/api/users/@me/guilds", {
       headers: {
         Authorization: `Bearer ${session.accessToken}`,
       },
     });
 
-    if (!response.ok) {
-      throw new Error("Failed to fetch guilds from Discord API");
+    if (!userGuildsRes.ok) {
+      throw new Error("Failed to fetch user guilds");
     }
 
-    const guilds = await response.json();
+    const userGuilds = await userGuildsRes.json();
 
-    // Filter to servers where the user has Administrator permission (0x8) or is the Owner
-    const manageableGuilds = guilds.filter((guild: any) => {
-      const permissions = BigInt(guild.permissions);
-      const isAdmin = (permissions & 0x8n) === 0x8n;
-      return guild.owner || isAdmin;
+    // 2. Fetch the bot's guilds using the Bot Token
+    const botGuildsRes = await fetch("https://discord.com/api/users/@me/guilds", {
+      headers: {
+        Authorization: `Bot ${process.env.DISCORD_BOT_TOKEN}`,
+      },
     });
 
-    return NextResponse.json(manageableGuilds);
+    if (!botGuildsRes.ok) {
+      throw new Error("Failed to fetch bot guilds");
+    }
+
+    const botGuilds = await botGuildsRes.json();
+    const botGuildIds = new Set(botGuilds.map((g: any) => g.id));
+
+    // 3. Map servers: user must be Admin/Owner, and we can tag if the bot is in it or not
+    const processedGuilds = userGuilds
+      .filter((guild: any) => {
+        const permissions = BigInt(guild.permissions);
+        const isAdmin = (permissions & 0x8n) === 0x8n;
+        return guild.owner || isAdmin;
+      })
+      .map((guild: any) => ({
+        ...guild,
+        botPresent: botGuildIds.has(guild.id),
+      }));
+
+    return NextResponse.json(processedGuilds);
   } catch (error) {
     console.error("Error fetching guilds:", error);
     return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
