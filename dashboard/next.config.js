@@ -4,14 +4,10 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'cdn.discordapp.com',
+        hostname: 'i.pinimg.com',
       },
     ],
   },
-  webpack: (config) => {
-    config.cache = false
-    return config
-  }
-}
+};
 
-module.exports = nextConfig
+export default nextConfig;
